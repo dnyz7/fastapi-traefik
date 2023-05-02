@@ -1,0 +1,25 @@
+version: '3.3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    expose:
+      - 80
+    environment:
+      - DATABASE_URL=postgresql://postgres_user:pgqwer1234@staging.goesdigital.id:5432/fastapi
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.fastapi.rule=Host(`fastapi.staging.goesdigital.id`)
+      - traefik.docker.network=proxy
+      - traefik.http.routers.fastapi-secure.entrypoints=websecure
+      - traefik.http.routers.fastapi-secure.rule=Host(`pgadmin.staging.goesdigital.id`)
+      - traefik.http.routers.fastapi-secure.service=fastapi
+      - traefik.http.services.fastapi.loadbalancer.server.port=80
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
